@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App colors -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Widget colors -->
+    <color name="widget_background">#1E1E1E</color>
+
+    <!-- Activity level colors (gray to orange) -->
+    <color name="level_0">#2D2D2D</color>
+    <color name="level_1">#5C3D1E</color>
+    <color name="level_2">#8B5A2B</color>
+    <color name="level_3">#D2691E</color>
+    <color name="level_4">#FF8C00</color>
+
+    <!-- Strava brand color -->
+    <color name="strava_orange">#FC4C02</color>
+</resources>

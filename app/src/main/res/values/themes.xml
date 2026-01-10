@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.StravaWidget" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="colorPrimary">#FC4C02</item>
+        <item name="colorPrimaryDark">#E04000</item>
+        <item name="colorAccent">#FF8C00</item>
+        <item name="android:windowBackground">#1E1E1E</item>
+    </style>
+</resources>

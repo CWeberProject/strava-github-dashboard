@@ -1,0 +1,29 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Android Studio
+.idea/
+*.iml
+local.properties
+
+# APK files
+*.apk
+*.aab
+
+# Generated files
+*.class
+*.dex
+
+# Log files
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Spec files
+CLAUDE.md
+STRAVA_WIDGET_SPEC.md
+REALTIME_SYNC_SPEC.md
