@@ -2,6 +2,8 @@
 
 An Android home screen widget that displays your Strava activities as a GitHub-style contribution heatmap.
 
+![widget](https://github.com/user-attachments/assets/fb992f5d-5261-4891-a9e6-50224aaacf17)
+
 ## Features
 
 - 13×7 grid showing the last 91 days of activity
