@@ -1,0 +1,8 @@
+# Copy this file to local.properties and fill in your values
+# Do NOT commit local.properties to version control
+
+sdk.dir=/path/to/your/Android/sdk
+
+# Strava API credentials (get these from https://www.strava.com/settings/api)
+STRAVA_CLIENT_ID=your_client_id
+STRAVA_CLIENT_SECRET=your_client_secret
