@@ -6,7 +6,7 @@ struct StravaWidgetView: View {
 
     var body: some View {
         ZStack {
-            Color(hex: Constants.widgetBackgroundColor)
+            Color.clear
 
             if entry.isLoggedIn {
                 HeatmapGridView(activityLevels: entry.activityLevels)
