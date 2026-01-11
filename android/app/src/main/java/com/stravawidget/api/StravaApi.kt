@@ -31,6 +31,7 @@ interface StravaApi {
     suspend fun getActivities(
         @Header("Authorization") authorization: String,
         @Query("after") after: Long,
+        @Query("page") page: Int = 1,
         @Query("per_page") perPage: Int = 200
     ): List<Activity>
 }

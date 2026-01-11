@@ -3,6 +3,8 @@ import WidgetKit
 
 @main
 struct StravaWidgetApp: App {
+    @Environment(\.openURL) private var openURL
+
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -13,8 +15,12 @@ struct StravaWidgetApp: App {
     }
 
     private func handleURL(_ url: URL) {
-        if url.scheme == "stravawidget" && url.host == "auth" {
-            // Auth flow will be triggered by ContentView
+        if url.scheme == "stravawidget" {
+            if url.host == "open-strava" {
+                if let stravaURL = URL(string: "strava://") {
+                    openURL(stravaURL)
+                }
+            }
         }
     }
 }

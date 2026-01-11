@@ -12,6 +12,6 @@ enum Constants {
     static let cellSize: CGFloat = 11.2
     static let cellSpacing: CGFloat = 2.8
 
-    static let widgetBackgroundColor = "#1E1E1E"
+    static let widgetBackgroundColor = "#000000"
     static let stravaOrange = "#FC4C02"
 }

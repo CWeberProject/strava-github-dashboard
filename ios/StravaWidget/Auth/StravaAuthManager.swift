@@ -1,86 +1,115 @@
-import AuthenticationServices
 import Foundation
+import SwiftUI
+import WebKit
 
-final class StravaAuthManager: NSObject, ASWebAuthenticationPresentationContextProviding {
+final class StravaAuthManager: ObservableObject {
     static let shared = StravaAuthManager()
 
     private let authURL = "https://www.strava.com/oauth/mobile/authorize"
-    private let callbackScheme = "stravawidget"
-    private let redirectURI = "stravawidget://callback"
+    private let redirectURI = "http://localhost/callback"
 
-    private override init() {
-        super.init()
-    }
+    @Published var isShowingAuth = false
+
+    private var authContinuation: CheckedContinuation<String, Error>?
+
+    private init() {}
 
     func authenticate() async throws -> TokenResponse {
-        let authURLComponents = buildAuthURL()
-
-        guard let url = authURLComponents.url else {
-            throw AuthError.invalidURL
-        }
-
-        let callbackURL = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<URL, Error>) in
-            let session = ASWebAuthenticationSession(
-                url: url,
-                callbackURLScheme: callbackScheme
-            ) { url, error in
-                if let error = error {
-                    if (error as NSError).code == ASWebAuthenticationSessionError.canceledLogin.rawValue {
-                        continuation.resume(throwing: AuthError.userCancelled)
-                    } else {
-                        continuation.resume(throwing: error)
-                    }
-                } else if let url = url {
-                    continuation.resume(returning: url)
-                } else {
-                    continuation.resume(throwing: AuthError.noCallbackURL)
-                }
-            }
-
-            session.presentationContextProvider = self
-            session.prefersEphemeralWebBrowserSession = false
-
-            DispatchQueue.main.async {
-                session.start()
-            }
-        }
-
-        guard let code = extractCode(from: callbackURL) else {
-            throw AuthError.missingCode
-        }
-
+        let code = try await getAuthorizationCode()
         return try await StravaClient.shared.exchangeToken(code: code)
     }
 
-    private func buildAuthURL() -> URLComponents {
-        var components = URLComponents(string: authURL)!
-        components.queryItems = [
+    private func getAuthorizationCode() async throws -> String {
+        return try await withCheckedThrowingContinuation { continuation in
+            self.authContinuation = continuation
+            DispatchQueue.main.async {
+                self.isShowingAuth = true
+            }
+        }
+    }
+
+    func buildAuthURL() -> URL? {
+        var components = URLComponents(string: authURL)
+        components?.queryItems = [
             URLQueryItem(name: "client_id", value: Secrets.stravaClientID),
             URLQueryItem(name: "redirect_uri", value: redirectURI),
             URLQueryItem(name: "response_type", value: "code"),
             URLQueryItem(name: "approval_prompt", value: "auto"),
             URLQueryItem(name: "scope", value: "activity:read")
         ]
-        return components
+        return components?.url
     }
 
-    private func extractCode(from url: URL) -> String? {
-        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-              let queryItems = components.queryItems else {
-            return nil
+    func handleCallback(url: URL) -> Bool {
+        guard url.absoluteString.starts(with: "http://localhost/callback") else {
+            return false
         }
 
-        return queryItems.first { $0.name == "code" }?.value
+        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+
+        if let code = components?.queryItems?.first(where: { $0.name == "code" })?.value {
+            authContinuation?.resume(returning: code)
+            authContinuation = nil
+            isShowingAuth = false
+            return true
+        } else if let error = components?.queryItems?.first(where: { $0.name == "error" })?.value {
+            authContinuation?.resume(throwing: AuthError.authorizationDenied(error))
+            authContinuation = nil
+            isShowingAuth = false
+            return true
+        }
+
+        authContinuation?.resume(throwing: AuthError.missingCode)
+        authContinuation = nil
+        isShowingAuth = false
+        return true
     }
 
-    // MARK: - ASWebAuthenticationPresentationContextProviding
+    func cancelAuth() {
+        authContinuation?.resume(throwing: AuthError.userCancelled)
+        authContinuation = nil
+        isShowingAuth = false
+    }
+}
 
-    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = scene.windows.first else {
-            return ASPresentationAnchor()
+// MARK: - Auth WebView
+
+struct StravaAuthWebView: UIViewRepresentable {
+    let url: URL
+    let onCallback: (URL) -> Bool
+
+    func makeUIView(context: Context) -> WKWebView {
+        let webView = WKWebView()
+        webView.navigationDelegate = context.coordinator
+        return webView
+    }
+
+    func updateUIView(_ webView: WKWebView, context: Context) {
+        if webView.url == nil {
+            webView.load(URLRequest(url: url))
         }
-        return window
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onCallback: onCallback)
+    }
+
+    class Coordinator: NSObject, WKNavigationDelegate {
+        let onCallback: (URL) -> Bool
+
+        init(onCallback: @escaping (URL) -> Bool) {
+            self.onCallback = onCallback
+        }
+
+        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+            if let url = navigationAction.request.url,
+               url.absoluteString.starts(with: "http://localhost/callback") {
+                _ = onCallback(url)
+                decisionHandler(.cancel)
+                return
+            }
+            decisionHandler(.allow)
+        }
     }
 }
 
@@ -91,6 +120,7 @@ enum AuthError: Error, LocalizedError {
     case userCancelled
     case noCallbackURL
     case missingCode
+    case authorizationDenied(String)
 
     var errorDescription: String? {
         switch self {
@@ -102,6 +132,8 @@ enum AuthError: Error, LocalizedError {
             return "No callback URL received"
         case .missingCode:
             return "Authorization code not found"
+        case .authorizationDenied(let reason):
+            return "Authorization denied: \(reason)"
         }
     }
 }

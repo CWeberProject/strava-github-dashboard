@@ -540,7 +540,7 @@
 				DEVELOPMENT_TEAM = C24A2NY4H5;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = StravaWidgetExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = StravaWidgetExtension;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -568,7 +568,7 @@
 				DEVELOPMENT_TEAM = C24A2NY4H5;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = StravaWidgetExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = StravaWidgetExtension;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

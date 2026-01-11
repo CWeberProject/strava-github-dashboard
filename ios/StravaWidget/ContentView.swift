@@ -2,6 +2,7 @@ import SwiftUI
 import WidgetKit
 
 struct ContentView: View {
+    @StateObject private var authManager = StravaAuthManager.shared
     @State private var isLoggedIn = StravaRepository.shared.isLoggedIn
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -48,6 +49,30 @@ struct ContentView: View {
         }
         .onAppear {
             updateLastSyncTime()
+        }
+        .sheet(isPresented: $authManager.isShowingAuth) {
+            authWebViewSheet
+        }
+    }
+
+    private var authWebViewSheet: some View {
+        NavigationView {
+            if let url = authManager.buildAuthURL() {
+                StravaAuthWebView(url: url) { callbackURL in
+                    authManager.handleCallback(url: callbackURL)
+                }
+                .navigationTitle("Connect to Strava")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") {
+                            authManager.cancelAuth()
+                        }
+                    }
+                }
+            } else {
+                Text("Error loading authentication")
+            }
         }
     }
 

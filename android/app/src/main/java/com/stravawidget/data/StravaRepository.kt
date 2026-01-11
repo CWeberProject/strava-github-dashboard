@@ -69,12 +69,26 @@ class StravaRepository(context: Context) {
 
         return try {
             val after = getStartOfPeriod()
-            val activities = api.getActivities(
-                authorization = "Bearer $accessToken",
-                after = after
-            )
+            val allActivities = mutableListOf<Activity>()
+            var page = 1
+            val perPage = 200
 
-            val levels = calculateLevels(activities)
+            // Paginate through all activities within the date range
+            while (true) {
+                val activities = api.getActivities(
+                    authorization = "Bearer $accessToken",
+                    after = after,
+                    page = page,
+                    perPage = perPage
+                )
+                allActivities.addAll(activities)
+
+                // Stop if we got fewer than requested (last page)
+                if (activities.size < perPage) break
+                page++
+            }
+
+            val levels = calculateLevels(allActivities)
             activityCache.saveActivityLevels(levels)
 
             Result.success(levels)
@@ -89,7 +103,8 @@ class StravaRepository(context: Context) {
 
     private fun getStartOfPeriod(): Long {
         val today = LocalDate.now()
-        val startDate = today.minusDays(91)
+        // Fetch 365 days to support widget sizes up to 52 weeks
+        val startDate = today.minusDays(365)
         return startDate.atStartOfDay(ZoneId.systemDefault()).toEpochSecond()
     }
 

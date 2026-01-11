@@ -7,9 +7,15 @@ final class ActivityCache {
 
     private let activityLevelsKey = "activity_levels"
     private let lastSyncKey = "last_sync"
+    private let isLoggedInKey = "is_logged_in"
 
     private init() {
         userDefaults = UserDefaults(suiteName: Constants.appGroupID) ?? .standard
+    }
+
+    var isLoggedIn: Bool {
+        get { userDefaults.bool(forKey: isLoggedInKey) }
+        set { userDefaults.set(newValue, forKey: isLoggedInKey) }
     }
 
     func saveActivityLevels(_ levels: [String: Int]) {
@@ -28,5 +34,6 @@ final class ActivityCache {
     func clear() {
         userDefaults.removeObject(forKey: activityLevelsKey)
         userDefaults.removeObject(forKey: lastSyncKey)
+        isLoggedIn = false
     }
 }

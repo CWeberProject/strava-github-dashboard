@@ -38,8 +38,7 @@ struct StravaWidgetTimelineProvider: TimelineProvider {
         return StravaWidgetEntry(
             date: Date(),
             activityLevels: repository.getCachedActivityLevels(),
-            isLoggedIn: repository.isLoggedIn,
-            gridDates: StravaRepository.getGridDates()
+            isLoggedIn: repository.isLoggedIn
         )
     }
 }

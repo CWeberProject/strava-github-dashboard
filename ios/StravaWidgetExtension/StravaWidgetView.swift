@@ -4,23 +4,18 @@ import WidgetKit
 struct StravaWidgetView: View {
     let entry: StravaWidgetEntry
 
-    @Environment(\.widgetFamily) var widgetFamily
-
     var body: some View {
         ZStack {
             Color(hex: Constants.widgetBackgroundColor)
 
             if entry.isLoggedIn {
-                HeatmapGridView(
-                    gridDates: entry.gridDates,
-                    activityLevels: entry.activityLevels
-                )
-                .padding(widgetFamily == .systemSmall ? 6 : 12)
+                HeatmapGridView(activityLevels: entry.activityLevels)
+                    .padding(4)
             } else {
                 notLoggedInView
             }
         }
-        .widgetURL(URL(string: entry.isLoggedIn ? "strava://" : "stravawidget://auth"))
+        .widgetURL(URL(string: "stravawidget://open-strava"))
     }
 
     private var notLoggedInView: some View {

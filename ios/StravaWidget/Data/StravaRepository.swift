@@ -11,13 +11,14 @@ final class StravaRepository {
     private init() {}
 
     var isLoggedIn: Bool {
-        tokenStorage.isLoggedIn
+        tokenStorage.isLoggedIn || activityCache.isLoggedIn
     }
 
     // MARK: - Token Management
 
     func saveTokens(from response: TokenResponse) {
         tokenStorage.saveTokens(from: response)
+        activityCache.isLoggedIn = true
     }
 
     private func refreshTokenIfNeeded() async -> Bool {
@@ -70,7 +71,9 @@ final class StravaRepository {
     private func getStartOfPeriod() -> TimeInterval {
         let calendar = Calendar.current
         let today = Date()
-        let startDate = calendar.date(byAdding: .day, value: -Constants.totalDays, to: today)!
+        // Fetch 24 weeks of data (168 days) to support medium widget
+        let maxDays = 24 * Constants.daysPerWeek
+        let startDate = calendar.date(byAdding: .day, value: -maxDays, to: today)!
         return calendar.startOfDay(for: startDate).timeIntervalSince1970
     }
 
@@ -90,9 +93,10 @@ final class StravaRepository {
 
     // MARK: - Grid Date Calculation
 
-    static func getGridDates() -> [Date?] {
+    static func getGridDates(weeks: Int = Constants.weeksToShow) -> [Date?] {
         let calendar = Calendar.current
         let today = Date()
+        let totalDays = weeks * Constants.daysPerWeek
 
         // Get current day of week (Sunday = 1 in Calendar)
         let currentDayOfWeek = calendar.component(.weekday, from: today) - 1
@@ -100,14 +104,14 @@ final class StravaRepository {
         // End date is Saturday of current week
         let endDate = calendar.date(byAdding: .day, value: 6 - currentDayOfWeek, to: today)!
 
-        // Start date is Sunday 12 weeks before
-        let startDate = calendar.date(byAdding: .day, value: -(Constants.totalDays - 1), to: endDate)!
+        // Start date is Sunday (weeks-1) weeks before
+        let startDate = calendar.date(byAdding: .day, value: -(totalDays - 1), to: endDate)!
 
         var dates: [Date?] = []
 
-        // Build grid: 7 rows (days) x 13 columns (weeks)
+        // Build grid: 7 rows (days) x N columns (weeks)
         for dayOfWeek in 0..<Constants.daysPerWeek {
-            for week in 0..<Constants.weeksToShow {
+            for week in 0..<weeks {
                 let dayOffset = week * 7 + dayOfWeek
                 let date = calendar.date(byAdding: .day, value: dayOffset, to: startDate)!
 
