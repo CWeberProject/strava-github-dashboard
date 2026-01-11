@@ -1,51 +1,155 @@
 # Strava Activity Heatmap Widget
 
-An Android home screen widget that displays your Strava activities as a GitHub-style contribution heatmap.
+A home screen widget for **Android** and **iOS** that displays your Strava workout activity as a GitHub-style contribution heatmap. Shows a 13-week grid colored from gray to orange based on daily workout duration.
 
 ![widget](https://github.com/user-attachments/assets/fb992f5d-5261-4891-a9e6-50224aaacf17)
 
 ## Features
 
-- 13×7 grid showing the last 91 days of activity
-- Color intensity based on workout duration (gray → orange)
-- Background sync every 15 minutes
-- Tap widget to open Strava app
+- 13x7 grid showing 13 weeks of activity (91 days)
+- Color intensity based on total daily workout duration
+- Automatic background sync with Strava
+- Secure OAuth authentication
+- Works offline with cached data
 
-## Color Scale
+## Activity Levels
 
-| Duration | Color |
-|----------|-------|
-| No activity | Gray |
-| 1-29 min | Light orange |
-| 30-59 min | Medium orange |
-| 60-89 min | Dark orange |
-| 90+ min | Bright orange |
+| Level | Duration | Color |
+|-------|----------|-------|
+| 0 | No activity | Gray (#2D2D2D) |
+| 1 | 1-29 min | Light brown (#5C3D1E) |
+| 2 | 30-59 min | Brown (#8B5A2B) |
+| 3 | 60-89 min | Chocolate (#D2691E) |
+| 4 | 90+ min | Orange (#FF8C00) |
 
-## Setup
+---
 
-1. **Get Strava API credentials**
-   - Go to https://www.strava.com/settings/api
-   - Create an app (or use existing)
-   - Set Authorization Callback Domain to `localhost`
-   - Note your Client ID and Client Secret
+## Strava API Setup (Required for Both Platforms)
 
-2. **Configure the project**
-   - Copy `local.properties.example` to `local.properties`
-   - Fill in your Strava credentials
+1. Go to [Strava API Settings](https://www.strava.com/settings/api)
+2. Create a new application
+3. Set the **Authorization Callback Domain** to `localhost`
+4. Note your **Client ID** and **Client Secret**
 
-3. **Build and install**
+---
+
+## Android
+
+### Requirements
+- Android Studio
+- Android SDK 26+ (Android 8.0)
+- Kotlin
+
+### Setup
+
+1. Navigate to the Android project:
    ```bash
-   ./gradlew installDebug
+   cd android
    ```
 
-4. **Add widget to home screen**
-   - Long press home screen → Widgets → Strava Heatmap
-   - Tap widget to authenticate with Strava
+2. Copy the example properties file:
+   ```bash
+   cp local.properties.example local.properties
+   ```
 
-## Requirements
+3. Edit `local.properties` and add your Strava credentials:
+   ```properties
+   STRAVA_CLIENT_ID=your_client_id
+   STRAVA_CLIENT_SECRET=your_client_secret
+   ```
 
-- Android 8.0+ (API 26)
-- Strava account
+### Build
+
+```bash
+cd android
+
+# Build debug APK
+./gradlew assembleDebug
+
+# Install on connected device
+./gradlew installDebug
+
+# Run tests
+./gradlew test
+```
+
+The APK will be at `android/app/build/outputs/apk/debug/app-debug.apk`
+
+---
+
+## iOS
+
+### Requirements
+- Xcode 15+
+- iOS 17+
+- Swift 5.9+
+
+### Setup
+
+1. Open the Xcode project:
+   ```bash
+   open ios/StravaWidget.xcodeproj
+   ```
+
+2. Edit `ios/StravaWidget/Secrets.swift` with your Strava credentials:
+   ```swift
+   enum Secrets {
+       static let stravaClientID = "your_client_id"
+       static let stravaClientSecret = "your_client_secret"
+   }
+   ```
+
+3. In Xcode:
+   - Select your development team for both targets (StravaWidget and StravaWidgetExtension)
+   - Enable the **App Groups** capability for both targets with `group.com.stravawidget`
+
+### Build
+
+1. Select your target device or simulator
+2. Press `Cmd+R` to build and run
+
+---
+
+## Project Structure
+
+```
+strava-github-dashboard/
+├── android/                    # Android app
+│   ├── app/
+│   │   └── src/main/
+│   │       ├── java/com/stravawidget/
+│   │       │   ├── api/        # Strava API client
+│   │       │   ├── data/       # Repository, storage
+│   │       │   └── widget/     # Widget provider, sync
+│   │       └── res/            # Layouts, drawables
+│   ├── build.gradle.kts
+│   └── local.properties        # API credentials (gitignored)
+│
+├── ios/                        # iOS app
+│   ├── StravaWidget/           # Main app target
+│   │   ├── Auth/               # OAuth authentication
+│   │   ├── API/                # Strava API client
+│   │   ├── Data/               # Repository, storage
+│   │   └── Secrets.swift       # API credentials (gitignored)
+│   ├── StravaWidgetExtension/  # Widget extension
+│   └── Shared/                 # Shared code
+│
+├── CLAUDE.md                   # AI assistant instructions
+└── README.md                   # This file
+```
+
+---
+
+## How It Works
+
+1. **Authentication**: User logs in via Strava OAuth
+2. **Sync**: App fetches activities from the last 91 days
+3. **Processing**: Daily workout minutes are summed and converted to levels (0-4)
+4. **Caching**: Activity levels are cached locally
+5. **Display**: Widget renders a 13x7 grid with appropriate colors
+6. **Background Refresh**: Periodic sync keeps data up-to-date
+
+---
 
 ## License
 

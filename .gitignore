@@ -23,6 +23,21 @@ local.properties
 .DS_Store
 Thumbs.db
 
+# iOS
+ios/StravaWidget/Secrets.swift
+*.xcuserdata/
+DerivedData/
+*.xcworkspace/xcuserdata/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+!default.pbxuser
+!default.mode1v3
+!default.mode2v3
+!default.perspectivev3
+xcuserdata/
+
 # Spec files
 CLAUDE.md
 STRAVA_WIDGET_SPEC.md

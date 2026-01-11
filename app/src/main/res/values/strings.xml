@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">Strava Widget</string>
-    <string name="widget_name">Strava Heatmap</string>
-    <string name="widget_description">Activity heatmap showing your last 13 weeks</string>
-    <string name="connect_with_strava">Connect with Strava</string>
-    <string name="connected">Connected to Strava</string>
-    <string name="syncing">Syncing activities…</string>
-</resources>
