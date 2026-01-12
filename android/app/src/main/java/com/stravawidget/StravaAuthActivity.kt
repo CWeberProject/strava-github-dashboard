@@ -93,7 +93,7 @@ class StravaAuthActivity : AppCompatActivity() {
             .appendQueryParameter("redirect_uri", REDIRECT_URI)
             .appendQueryParameter("response_type", "code")
             .appendQueryParameter("approval_prompt", "auto")
-            .appendQueryParameter("scope", "activity:read")
+            .appendQueryParameter("scope", "activity:read_all")
             .build()
 
         // Hide button, show WebView

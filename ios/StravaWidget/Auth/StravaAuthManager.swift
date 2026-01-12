@@ -35,7 +35,7 @@ final class StravaAuthManager: ObservableObject {
             URLQueryItem(name: "redirect_uri", value: redirectURI),
             URLQueryItem(name: "response_type", value: "code"),
             URLQueryItem(name: "approval_prompt", value: "auto"),
-            URLQueryItem(name: "scope", value: "activity:read")
+            URLQueryItem(name: "scope", value: "activity:read_all")
         ]
         return components?.url
     }
